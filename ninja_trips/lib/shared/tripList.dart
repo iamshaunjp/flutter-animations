@@ -8,13 +8,15 @@ class TripList extends StatefulWidget {
 }
 
 class _TripListState extends State<TripList> {
+  GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   List<Widget> _tripTiles = [];
-  final GlobalKey _listKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    _addTrips();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _addTrips();
+    });
   }
 
   void _addTrips() {
@@ -28,6 +30,7 @@ class _TripListState extends State<TripList> {
 
     _trips.forEach((Trip trip) {
       _tripTiles.add(_buildTile(trip));
+      _listKey.currentState.insertItem(_tripTiles.length - 1);
     });
   }
 
@@ -59,14 +62,18 @@ class _TripListState extends State<TripList> {
     );
   }
 
+  Tween<Offset> _offset = Tween(begin: Offset(1, 0), end: Offset(0, 0));
+
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      key: _listKey,
-      itemCount: _tripTiles.length,
-      itemBuilder: (context, index) {
-        return _tripTiles[index];
-      }
-    );
+    return AnimatedList(
+        key: _listKey,
+        initialItemCount: _tripTiles.length,
+        itemBuilder: (context, index, animation) {
+          return SlideTransition(
+            position: animation.drive(_offset),
+            child: _tripTiles[index],
+          );
+        });
   }
 }

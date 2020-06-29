@@ -10,6 +10,7 @@ class _HeartState extends State<Heart> with SingleTickerProviderStateMixin {
   AnimationController _controller;
   Animation<Color> _colorAnimation;
   Animation<double> _sizeAnimation;
+  Animation _curve;
 
   @override
   void initState() {
@@ -20,21 +21,20 @@ class _HeartState extends State<Heart> with SingleTickerProviderStateMixin {
       vsync: this,
     );
 
-    _colorAnimation = ColorTween(begin: Colors.grey[400], end: Colors.red)
-      .animate(_controller);
+    _curve = CurvedAnimation(parent: _controller, curve: Curves.slowMiddle);
 
-    _sizeAnimation = TweenSequence(
-      <TweenSequenceItem<double>>[
-        TweenSequenceItem<double>(
-          tween: Tween<double>(begin: 30, end: 50),
-          weight: 50,
-        ),
-        TweenSequenceItem<double>(
-          tween: Tween<double>(begin: 50, end: 30),
-          weight: 50,
-        ),
-      ]
-    ).animate(_controller);
+    _colorAnimation = ColorTween(begin: Colors.grey[400], end: Colors.red).animate(_curve);
+
+    _sizeAnimation = TweenSequence(<TweenSequenceItem<double>>[
+      TweenSequenceItem<double>(
+        tween: Tween<double>(begin: 30, end: 50),
+        weight: 50,
+      ),
+      TweenSequenceItem<double>(
+        tween: Tween<double>(begin: 50, end: 30),
+        weight: 50,
+      ),
+    ]).animate(_curve);
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -47,25 +47,24 @@ class _HeartState extends State<Heart> with SingleTickerProviderStateMixin {
           isFav = false;
         });
       }
-    }); 
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _controller,
-      builder: (BuildContext context, _){
-        return IconButton(
-          icon: Icon(
-            Icons.favorite,
-            color: _colorAnimation.value,
-            size: _sizeAnimation.value,
-          ),
-          onPressed: () {
-            isFav ? _controller.reverse() : _controller.forward();
-          },
-        );
-      }
-    );
+        animation: _controller,
+        builder: (BuildContext context, _) {
+          return IconButton(
+            icon: Icon(
+              Icons.favorite,
+              color: _colorAnimation.value,
+              size: _sizeAnimation.value,
+            ),
+            onPressed: () {
+              isFav ? _controller.reverse() : _controller.forward();
+            },
+          );
+        });
   }
 }

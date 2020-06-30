@@ -40,6 +40,13 @@ class _HeartState extends State<Heart> with SingleTickerProviderStateMixin {
     }); 
   }
 
+  // dismiss the animation when widgit exits screen
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
